@@ -4,6 +4,7 @@ using ElectronicDepartment.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ElectronicDepartment.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220520121333_AddAppUserField")]
+    partial class AddAppUserField
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -253,6 +255,9 @@ namespace ElectronicDepartment.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
+
                     b.Property<int?>("CourseTeacherId")
                         .IsRequired()
                         .HasColumnType("int");
@@ -263,16 +268,15 @@ namespace ElectronicDepartment.DataAccess.Migrations
                     b.Property<DateTime>("DeletedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("Duration")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("LessonStart")
-                        .HasColumnType("datetime2");
-
                     b.Property<int>("LessonType")
                         .HasColumnType("int");
 
+                    b.Property<TimeSpan>("TimeSpan")
+                        .HasColumnType("time");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
 
                     b.HasIndex("CourseTeacherId");
 
@@ -478,7 +482,7 @@ namespace ElectronicDepartment.DataAccess.Migrations
                     b.Property<int>("AcademicAcredition")
                         .HasColumnType("int");
 
-                    b.Property<int?>("CafedraId")
+                    b.Property<int>("CafedraId")
                         .HasColumnType("int");
 
                     b.HasIndex("CafedraId");
@@ -495,7 +499,7 @@ namespace ElectronicDepartment.DataAccess.Migrations
                         .IsRequired();
 
                     b.HasOne("ElectronicDepartment.DomainEntities.Teacher", "Teacher")
-                        .WithMany("Courses")
+                        .WithMany()
                         .HasForeignKey("TeacherId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -507,11 +511,19 @@ namespace ElectronicDepartment.DataAccess.Migrations
 
             modelBuilder.Entity("ElectronicDepartment.DomainEntities.Lesson", b =>
                 {
+                    b.HasOne("ElectronicDepartment.DomainEntities.Course", "Course")
+                        .WithMany("GroupCourses")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("ElectronicDepartment.DomainEntities.CourseTeacher", "CourseTeacher")
                         .WithMany("Lessons")
                         .HasForeignKey("CourseTeacherId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Course");
 
                     b.Navigation("CourseTeacher");
                 });
@@ -525,7 +537,7 @@ namespace ElectronicDepartment.DataAccess.Migrations
                         .IsRequired();
 
                     b.HasOne("ElectronicDepartment.DomainEntities.Student", "Student")
-                        .WithMany("StudentOnLessons")
+                        .WithMany()
                         .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -601,7 +613,9 @@ namespace ElectronicDepartment.DataAccess.Migrations
                 {
                     b.HasOne("ElectronicDepartment.DomainEntities.Cafedra", "Cafedra")
                         .WithMany("Teachers")
-                        .HasForeignKey("CafedraId");
+                        .HasForeignKey("CafedraId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Cafedra");
                 });
@@ -614,6 +628,8 @@ namespace ElectronicDepartment.DataAccess.Migrations
             modelBuilder.Entity("ElectronicDepartment.DomainEntities.Course", b =>
                 {
                     b.Navigation("CourseTeachers");
+
+                    b.Navigation("GroupCourses");
                 });
 
             modelBuilder.Entity("ElectronicDepartment.DomainEntities.CourseTeacher", b =>
@@ -629,16 +645,6 @@ namespace ElectronicDepartment.DataAccess.Migrations
             modelBuilder.Entity("ElectronicDepartment.DomainEntities.Lesson", b =>
                 {
                     b.Navigation("StudentOnLessons");
-                });
-
-            modelBuilder.Entity("ElectronicDepartment.DomainEntities.Student", b =>
-                {
-                    b.Navigation("StudentOnLessons");
-                });
-
-            modelBuilder.Entity("ElectronicDepartment.DomainEntities.Teacher", b =>
-                {
-                    b.Navigation("Courses");
                 });
 #pragma warning restore 612, 618
         }

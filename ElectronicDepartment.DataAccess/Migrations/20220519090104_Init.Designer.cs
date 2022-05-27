@@ -4,6 +4,7 @@ using ElectronicDepartment.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ElectronicDepartment.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220519090104_Init")]
+    partial class Init
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,7 +24,7 @@ namespace ElectronicDepartment.DataAccess.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("ElectronicDepartment.DomainEntities.ApplicationUser", b =>
+            modelBuilder.Entity("ElectronicDepartment.DomainEntities.ApplizationUser", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -36,12 +38,6 @@ namespace ElectronicDepartment.DataAccess.Migrations
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("DeletedAt")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("Discriminator")
                         .IsRequired()
@@ -120,7 +116,7 @@ namespace ElectronicDepartment.DataAccess.Migrations
 
                     b.ToTable("AspNetUsers", (string)null);
 
-                    b.HasDiscriminator<string>("Discriminator").HasValue("ApplicationUser");
+                    b.HasDiscriminator<string>("Discriminator").HasValue("ApplizationUser");
                 });
 
             modelBuilder.Entity("ElectronicDepartment.DomainEntities.Cafedra", b =>
@@ -253,6 +249,9 @@ namespace ElectronicDepartment.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
+
                     b.Property<int?>("CourseTeacherId")
                         .IsRequired()
                         .HasColumnType("int");
@@ -263,16 +262,15 @@ namespace ElectronicDepartment.DataAccess.Migrations
                     b.Property<DateTime>("DeletedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("Duration")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("LessonStart")
-                        .HasColumnType("datetime2");
-
                     b.Property<int>("LessonType")
                         .HasColumnType("int");
 
+                    b.Property<TimeSpan>("TimeSpan")
+                        .HasColumnType("time");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
 
                     b.HasIndex("CourseTeacherId");
 
@@ -445,23 +443,9 @@ namespace ElectronicDepartment.DataAccess.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("ElectronicDepartment.DomainEntities.Admin", b =>
-                {
-                    b.HasBaseType("ElectronicDepartment.DomainEntities.ApplicationUser");
-
-                    b.HasDiscriminator().HasValue("Admin");
-                });
-
-            modelBuilder.Entity("ElectronicDepartment.DomainEntities.Manager", b =>
-                {
-                    b.HasBaseType("ElectronicDepartment.DomainEntities.ApplicationUser");
-
-                    b.HasDiscriminator().HasValue("Manager");
-                });
-
             modelBuilder.Entity("ElectronicDepartment.DomainEntities.Student", b =>
                 {
-                    b.HasBaseType("ElectronicDepartment.DomainEntities.ApplicationUser");
+                    b.HasBaseType("ElectronicDepartment.DomainEntities.ApplizationUser");
 
                     b.Property<int>("GroupId")
                         .HasColumnType("int");
@@ -473,12 +457,12 @@ namespace ElectronicDepartment.DataAccess.Migrations
 
             modelBuilder.Entity("ElectronicDepartment.DomainEntities.Teacher", b =>
                 {
-                    b.HasBaseType("ElectronicDepartment.DomainEntities.ApplicationUser");
+                    b.HasBaseType("ElectronicDepartment.DomainEntities.ApplizationUser");
 
                     b.Property<int>("AcademicAcredition")
                         .HasColumnType("int");
 
-                    b.Property<int?>("CafedraId")
+                    b.Property<int>("CafedraId")
                         .HasColumnType("int");
 
                     b.HasIndex("CafedraId");
@@ -495,7 +479,7 @@ namespace ElectronicDepartment.DataAccess.Migrations
                         .IsRequired();
 
                     b.HasOne("ElectronicDepartment.DomainEntities.Teacher", "Teacher")
-                        .WithMany("Courses")
+                        .WithMany()
                         .HasForeignKey("TeacherId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -507,11 +491,19 @@ namespace ElectronicDepartment.DataAccess.Migrations
 
             modelBuilder.Entity("ElectronicDepartment.DomainEntities.Lesson", b =>
                 {
+                    b.HasOne("ElectronicDepartment.DomainEntities.Course", "Course")
+                        .WithMany("GroupCourses")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("ElectronicDepartment.DomainEntities.CourseTeacher", "CourseTeacher")
                         .WithMany("Lessons")
                         .HasForeignKey("CourseTeacherId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Course");
 
                     b.Navigation("CourseTeacher");
                 });
@@ -525,7 +517,7 @@ namespace ElectronicDepartment.DataAccess.Migrations
                         .IsRequired();
 
                     b.HasOne("ElectronicDepartment.DomainEntities.Student", "Student")
-                        .WithMany("StudentOnLessons")
+                        .WithMany()
                         .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -546,7 +538,7 @@ namespace ElectronicDepartment.DataAccess.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("ElectronicDepartment.DomainEntities.ApplicationUser", null)
+                    b.HasOne("ElectronicDepartment.DomainEntities.ApplizationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -555,7 +547,7 @@ namespace ElectronicDepartment.DataAccess.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("ElectronicDepartment.DomainEntities.ApplicationUser", null)
+                    b.HasOne("ElectronicDepartment.DomainEntities.ApplizationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -570,7 +562,7 @@ namespace ElectronicDepartment.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ElectronicDepartment.DomainEntities.ApplicationUser", null)
+                    b.HasOne("ElectronicDepartment.DomainEntities.ApplizationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -579,7 +571,7 @@ namespace ElectronicDepartment.DataAccess.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("ElectronicDepartment.DomainEntities.ApplicationUser", null)
+                    b.HasOne("ElectronicDepartment.DomainEntities.ApplizationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -601,7 +593,9 @@ namespace ElectronicDepartment.DataAccess.Migrations
                 {
                     b.HasOne("ElectronicDepartment.DomainEntities.Cafedra", "Cafedra")
                         .WithMany("Teachers")
-                        .HasForeignKey("CafedraId");
+                        .HasForeignKey("CafedraId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Cafedra");
                 });
@@ -614,6 +608,8 @@ namespace ElectronicDepartment.DataAccess.Migrations
             modelBuilder.Entity("ElectronicDepartment.DomainEntities.Course", b =>
                 {
                     b.Navigation("CourseTeachers");
+
+                    b.Navigation("GroupCourses");
                 });
 
             modelBuilder.Entity("ElectronicDepartment.DomainEntities.CourseTeacher", b =>
@@ -629,16 +625,6 @@ namespace ElectronicDepartment.DataAccess.Migrations
             modelBuilder.Entity("ElectronicDepartment.DomainEntities.Lesson", b =>
                 {
                     b.Navigation("StudentOnLessons");
-                });
-
-            modelBuilder.Entity("ElectronicDepartment.DomainEntities.Student", b =>
-                {
-                    b.Navigation("StudentOnLessons");
-                });
-
-            modelBuilder.Entity("ElectronicDepartment.DomainEntities.Teacher", b =>
-                {
-                    b.Navigation("Courses");
                 });
 #pragma warning restore 612, 618
         }
