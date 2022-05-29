@@ -7,17 +7,13 @@ using System.Threading.Tasks;
 
 namespace ElectronicDepartment.Web.Shared.Lesson.Responce
 {
-    public class GetLessonViewModel
+    public class GetCourseLessonViewModel
     {
         public int Id { get; set; }
 
-        public int? CourseId { get; set; }
+        public string TeacherId { get; set;  }
 
-        public string CourseName { get; set; }
-
-        public string CourseTeacher { get; set; }
-        
-        public int? CourseTeacherId { get; set; }
+        public string TeacherFullName { get; set; }
 
         public LessonType LessonType { get; set; }
 
@@ -25,6 +21,6 @@ namespace ElectronicDepartment.Web.Shared.Lesson.Responce
 
         public int Duration { get; set; }
 
-        public DateTime CreatedAt { get; set; }
+        public int TotalStudentOnLesson { get; set; }
     }
 }
