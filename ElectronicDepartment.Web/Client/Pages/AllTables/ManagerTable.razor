@@ -1,47 +1,51 @@
-﻿@page "/Cafedras"
+﻿@page "/Managers"
 
 @using ElectronicDepartment.Web.Client.Services
 @using ElectronicDepartment.Web.Shared
-@using ElectronicDepartment.Web.Shared.Cafedra.Responce
+@using ElectronicDepartment.Web.Shared.User.Manager.Responce
 @using ElectronicDepartment.Web.Shared.Common
 @using static ElectronicDepartment.Web.Shared.CafedraController
-@inject NavigationManager NavigationManager
-
-
+@inject NavigationManager NavManager
 
 <div class="mat-layout-grid-inner">
     <div class="mat-layout-grid-cell mat-layout-grid-cell-span-2">
-        <h3>CafedraTable</h3>
+        <h3>ManagerTable</h3>
     </div>
     <div class="mat-layout-grid-cell mat-layout-grid-cell-span-8">
     </div>
-    <AuthorizeView Roles="teacher, admin, manager">
     <div class="mat-layout-grid-cell mat-layout-grid-cell-span-2">
-        <MatButton OnClick="@(item => NavigationManager.NavigateTo($"/manage/Cafedra/"))" Icon="create_new_folder" style="display: flex; justify-content: flex-end">Add</MatButton>
+        <MatButton OnClick="@(item => NavManager.NavigateTo($"/manage/manager/"))" Icon="create_new_folder" style="display: flex; justify-content: flex-end">Add</MatButton>
     </div>
-    </AuthorizeView>
 </div>
 
 <MatTable Items="ApiResult.Data"
           class="mat-elevation-z5"
           UseSortHeaderRow="true"
           ShowPaging="true"
-          FilterByColumnName="Name">
+          FilterByColumnName="FirstName">
     <MatTableHeader>
         <MatSortHeaderRow SortChanged="@SortData">
             <MatSortHeader SortId="no">Action</MatSortHeader>
-            <MatSortHeader SortId="Name">Name</MatSortHeader>
-            <MatSortHeader SortId="Phone">Phone</MatSortHeader>
-            <MatSortHeader SortId="Description">Description</MatSortHeader>
+            <MatSortHeader SortId="FirstName">FirstName</MatSortHeader>
+            <MatSortHeader SortId="MiddleName">MiddleName</MatSortHeader>
+            <MatSortHeader SortId="LastName">LastName</MatSortHeader>
+            <MatSortHeader SortId="BirthDay">BirthDay</MatSortHeader>
+            <MatSortHeader SortId="PhoneNumber">PhoneNumber</MatSortHeader>
+            <MatSortHeader SortId="Email">Email</MatSortHeader>
+            <MatSortHeader SortId="Gender">Gender</MatSortHeader>
         </MatSortHeaderRow>
     </MatTableHeader>
     <MatTableRow>
         <td>
-            <MatButton Raised="true" Icon="edit" title="Edit" OnClick="@(item => NavigationManager.NavigateTo($"/manage/Cafedra/{@context.Id}"))"></MatButton>
+            <MatButton Raised="true" Icon="edit" title="Edit" OnClick="@(item => NavManager.NavigateTo($"/manage/manager/{@context.Id}"))"></MatButton>
         </td>
-        <td>@context.Name</td>
-        <td>@context.Phone</td>
-        <td>@context.Description</td>
+        <td>@context.FirstName</td>
+        <td>@context.MiddleName</td>
+        <td>@context.LastName</td>
+        <td>@context.BirthDay</td>
+        <td>@context.PhoneNumber</td>
+        <td>@context.Email</td>
+        <td>@context.Gender</td>
     </MatTableRow>
 </MatTable>
 
@@ -49,6 +53,7 @@
     MatPaginator matTablePagenator { get; set; } = null;
 
     [Inject]
+    
     IHttpService HttpClient { get; set; }
 
 
@@ -58,15 +63,15 @@
             PageSize = 1000,
         };
 
-    public ApiResultViewModel<GetCafedraViewModel> ApiResult { get; set; } = new ApiResultViewModel<GetCafedraViewModel>();
+    public ApiResultViewModel<GetManagerViewModel> ApiResult { get; set; } = new ApiResultViewModel<GetManagerViewModel>();
 
     public async Task GetData()
     {
-        var result = await HttpClient.PostAsync("api/Cafedra/GetApiResponce", Pagenator);
+        var result = await HttpClient.PostAsync("api/manager/GetApiManager", Pagenator);
 
         if (result.IsSuccessStatusCode)
         {
-            ApiResult = await result.Content.ReadFromJsonAsync<ApiResultViewModel<GetCafedraViewModel>>();
+            ApiResult = await result.Content.ReadFromJsonAsync<ApiResultViewModel<GetManagerViewModel>>();
         }
     }
 

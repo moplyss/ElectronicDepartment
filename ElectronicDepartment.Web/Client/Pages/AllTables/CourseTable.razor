@@ -1,26 +1,25 @@
-﻿@page "/Cafedras"
-
+﻿@page "/Courses"
 @using ElectronicDepartment.Web.Client.Services
 @using ElectronicDepartment.Web.Shared
-@using ElectronicDepartment.Web.Shared.Cafedra.Responce
 @using ElectronicDepartment.Web.Shared.Common
+@using ElectronicDepartment.Web.Shared.Course.Responce
+
+
 @using static ElectronicDepartment.Web.Shared.CafedraController
-@inject NavigationManager NavigationManager
-
-
+@inject NavigationManager NavManager
 
 <div class="mat-layout-grid-inner">
     <div class="mat-layout-grid-cell mat-layout-grid-cell-span-2">
-        <h3>CafedraTable</h3>
+        <h3>CourseTable</h3>
     </div>
     <div class="mat-layout-grid-cell mat-layout-grid-cell-span-8">
     </div>
-    <AuthorizeView Roles="teacher, admin, manager">
     <div class="mat-layout-grid-cell mat-layout-grid-cell-span-2">
-        <MatButton OnClick="@(item => NavigationManager.NavigateTo($"/manage/Cafedra/"))" Icon="create_new_folder" style="display: flex; justify-content: flex-end">Add</MatButton>
+        <AuthorizeView Roles="admin, manager">
+            <MatButton OnClick="@(item => NavManager.NavigateTo($"/manage/Course/"))" Icon="create_new_folder" style="display: flex; justify-content: flex-end">Add</MatButton>
+        </AuthorizeView>
     </div>
-    </AuthorizeView>
-</div>
+</div>и
 
 <MatTable Items="ApiResult.Data"
           class="mat-elevation-z5"
@@ -31,16 +30,15 @@
         <MatSortHeaderRow SortChanged="@SortData">
             <MatSortHeader SortId="no">Action</MatSortHeader>
             <MatSortHeader SortId="Name">Name</MatSortHeader>
-            <MatSortHeader SortId="Phone">Phone</MatSortHeader>
-            <MatSortHeader SortId="Description">Description</MatSortHeader>
+            <MatSortHeader SortId="CreatedAt">CreatedAt</MatSortHeader>
         </MatSortHeaderRow>
     </MatTableHeader>
     <MatTableRow>
         <td>
-            <MatButton Raised="true" Icon="edit" title="Edit" OnClick="@(item => NavigationManager.NavigateTo($"/manage/Cafedra/{@context.Id}"))"></MatButton>
+            <MatButton Raised="true" Icon="edit" title="Edit" OnClick="@(item => NavManager.NavigateTo($"/manage/Course/{@context.Id}"))"></MatButton>
         </td>
         <td>@context.Name</td>
-        <td>@context.Phone</td>
+        <td>@context.CreatedAt</td>
         <td>@context.Description</td>
     </MatTableRow>
 </MatTable>
@@ -51,22 +49,21 @@
     [Inject]
     IHttpService HttpClient { get; set; }
 
-
     public GetApiBodyRequest Pagenator { get; set; } = new GetApiBodyRequest()
         {
             PageIndex = 0,
             PageSize = 1000,
         };
 
-    public ApiResultViewModel<GetCafedraViewModel> ApiResult { get; set; } = new ApiResultViewModel<GetCafedraViewModel>();
+    public ApiResultViewModel<GetCourseViewModel> ApiResult { get; set; } = new ApiResultViewModel<GetCourseViewModel>();
 
     public async Task GetData()
     {
-        var result = await HttpClient.PostAsync("api/Cafedra/GetApiResponce", Pagenator);
+        var result = await HttpClient.PostAsync("api/Course/GetApiResponce", Pagenator);
 
         if (result.IsSuccessStatusCode)
         {
-            ApiResult = await result.Content.ReadFromJsonAsync<ApiResultViewModel<GetCafedraViewModel>>();
+            ApiResult = await result.Content.ReadFromJsonAsync<ApiResultViewModel<GetCourseViewModel>>();
         }
     }
 
